@@ -1,0 +1,348 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>OpenQASM 3 Importer for Qiskit &#8212; Qiskit OpenQASM 3 Importer  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-qiskit_qasm3_import">
+<span id="openqasm-3-importer-for-qiskit"></span><h1><a class="toc-backref" href="#id1" role="doc-backlink">OpenQASM 3 Importer for Qiskit</a><a class="headerlink" href="#module-qiskit_qasm3_import" title="Permalink to this heading">¶</a></h1>
+<p>This project is a temporary importer for parsing simple OpenQASM 3 programmes
+and converting them into Qiskit <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html#qiskit.circuit.QuantumCircuit" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a> objects.</p>
+<p>We fully expect Qiskit’s capability to grow in this field, and for a similar
+importer to be merged into mainline Qiskit.  This project is a stop-gap measure,
+while various technical details are decided on the Qiskit side, as switching
+parsing frameworks and so on is far more complex for code brought into Qiskit,
+as the stability guarantees are much stronger.</p>
+<nav class="contents" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#module-qiskit_qasm3_import" id="id1">OpenQASM 3 Importer for Qiskit</a></p>
+<ul>
+<li><p><a class="reference internal" href="#api" id="id2">API</a></p></li>
+<li><p><a class="reference internal" href="#internals" id="id3">Internals</a></p>
+<ul>
+<li><p><a class="reference internal" href="#conversion-mechanism" id="id4">Conversion mechanism</a></p></li>
+<li><p><a class="reference internal" href="#type-system" id="id5">Type system</a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+<section id="api">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">API</a><a class="headerlink" href="#api" title="Permalink to this heading">¶</a></h2>
+<p>This package providers two public methods: <a class="reference internal" href="#qiskit_qasm3_import.parse" title="qiskit_qasm3_import.parse"><code class="xref py py-func docutils literal notranslate"><span class="pre">parse()</span></code></a> and <a class="reference internal" href="#qiskit_qasm3_import.convert" title="qiskit_qasm3_import.convert"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert()</span></code></a>.
+The complete path of taking a string representation of an OpenQASM 3 programme
+to <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html#qiskit.circuit.QuantumCircuit" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a> is <a class="reference internal" href="#qiskit_qasm3_import.parse" title="qiskit_qasm3_import.parse"><code class="xref py py-func docutils literal notranslate"><span class="pre">parse()</span></code></a>, while
+<a class="reference internal" href="#qiskit_qasm3_import.convert" title="qiskit_qasm3_import.convert"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert()</span></code></a> takes an AST <code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code> node from <a class="reference external" href="https://pypi.org/project/openqasm3">the
+reference OpenQASM 3 Python package</a>, and
+converts that to a <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html#qiskit.circuit.QuantumCircuit" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a>.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.parse">
+<span class="sig-prename descclassname"><span class="pre">qiskit_qasm3_import.</span></span><span class="sig-name descname"><span class="pre">parse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html#qiskit.circuit.QuantumCircuit" title="(in Qiskit)"><span class="pre">QuantumCircuit</span></a></span></span><a class="headerlink" href="#qiskit_qasm3_import.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper around <a class="reference internal" href="#qiskit_qasm3_import.convert" title="qiskit_qasm3_import.convert"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert()</span></code></a>, which first parses the OpenQASM 3 program into AST form, and
+then converts the output to Qiskit format.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.convert">
+<span class="sig-prename descclassname"><span class="pre">qiskit_qasm3_import.</span></span><span class="sig-name descname"><span class="pre">convert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Program</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html#qiskit.circuit.QuantumCircuit" title="(in Qiskit)"><span class="pre">QuantumCircuit</span></a></span></span><a class="headerlink" href="#qiskit_qasm3_import.convert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a parsed OpenQASM 3 program in AST form, into a Qiskit
+<a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html#qiskit.circuit.QuantumCircuit" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a>.</p>
+</dd></dl>
+
+<p>The converter in this module is quite limited, since Qiskit does not yet support
+all the features of OpenQASM 3.  When something unsupported is encountered
+during an attempted import, a <a class="reference internal" href="#qiskit_qasm3_import.ConversionError" title="qiskit_qasm3_import.ConversionError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ConversionError</span></code></a> will be raised.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.ConversionError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_qasm3_import.</span></span><span class="sig-name descname"><span class="pre">ConversionError</span></span><a class="headerlink" href="#qiskit_qasm3_import.ConversionError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raised when an error occurs converting from the AST representation into a
+<a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html#qiskit.circuit.QuantumCircuit" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a>.  This is often due to OpenQASM 3 constructs that have
+no equivalent in Qiskit.</p>
+</dd></dl>
+
+</section>
+<section id="internals">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Internals</a><a class="headerlink" href="#internals" title="Permalink to this heading">¶</a></h2>
+<section id="conversion-mechanism">
+<h3><a class="toc-backref" href="#id4" role="doc-backlink">Conversion mechanism</a><a class="headerlink" href="#conversion-mechanism" title="Permalink to this heading">¶</a></h3>
+<p>The internals of the <a class="reference internal" href="#qiskit_qasm3_import.convert" title="qiskit_qasm3_import.convert"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert()</span></code></a> function use a tree visitor, which
+subclasses <code class="xref py py-class docutils literal notranslate"><span class="pre">openqasm3.visitor.QASMVisitor</span></code>.  This is principally an
+internal implementation detail.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.converter.ConvertVisitor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_qasm3_import.converter.</span></span><span class="sig-name descname"><span class="pre">ConvertVisitor</span></span><a class="headerlink" href="#qiskit_qasm3_import.converter.ConvertVisitor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Internal visitor of an OpenQASM 3 AST to convert it to a
+<a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html#qiskit.circuit.QuantumCircuit" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a>.  The complete conversion is done by calling
+<a class="reference internal" href="#qiskit_qasm3_import.converter.ConvertVisitor.convert" title="qiskit_qasm3_import.converter.ConvertVisitor.convert"><code class="xref py py-meth docutils literal notranslate"><span class="pre">convert()</span></code></a> on a <code class="xref py py-class docutils literal notranslate"><span class="pre">openqasm3.ast.Program</span></code> node.</p>
+<p>The other methods on this class are internal only, and generally not part of the public
+interface.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.converter.ConvertVisitor.convert">
+<span class="sig-name descname"><span class="pre">convert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Program</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html#qiskit.circuit.QuantumCircuit" title="(in Qiskit)"><span class="pre">QuantumCircuit</span></a></span></span><a class="headerlink" href="#qiskit_qasm3_import.converter.ConvertVisitor.convert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a program node into a <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html#qiskit.circuit.QuantumCircuit" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a>.  If given,
+<cite>source</cite> is a string containing the OpenQASM 3 source code that was parsed into <cite>node</cite>.
+This is used to generated improved error messages.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>In addition, there is a subvisitor to handle constant-folding and the resolution
+of symbols and expressions into equivalent Qiskit types.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.expression.ValueResolver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_qasm3_import.expression.</span></span><span class="sig-name descname"><span class="pre">ValueResolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symbols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Symbol</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_qasm3_import.expression.ValueResolver" title="Permalink to this definition">¶</a></dt>
+<dd><p>A resolver for value-like objects that have exact Qiskit representations.  Everything handled
+here should resolve into a single Qiskit object (or occasionally a compound of such objects,
+like lists of bits).</p>
+<p>These resolvers are intended to be short-lived.  Their instance state is the symbols that are
+available to them.  There is no per-run state tracked.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.expression.ValueResolver.resolve">
+<span class="sig-name descname"><span class="pre">resolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expression</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#qiskit_qasm3_import.types.Type" title="qiskit_qasm3_import.types.Type"><span class="pre">Type</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#qiskit_qasm3_import.expression.ValueResolver.resolve" title="Permalink to this definition">¶</a></dt>
+<dd><p>The entry point to the resolver, resolving the AST node into a 2-tuple of a relevant
+Qiskit type, and the <a class="reference internal" href="#qiskit_qasm3_import.types.Type" title="qiskit_qasm3_import.types.Type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code></a> that it is an instance of.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>Conditions are handled slightly differently; to avoid needing to support the
+entire type system of OpenQASM 3 before Terra does, a special-case function
+handles the allowable components of the expression tree in conditions before
+delegating the rest of the calculation to <code class="xref py py-meth docutils literal notranslate"><span class="pre">ExpressionResolver.resolve()</span></code>
+above.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.expression.resolve_condition">
+<span class="sig-prename descclassname"><span class="pre">qiskit_qasm3_import.expression.</span></span><span class="sig-name descname"><span class="pre">resolve_condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Expression</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Symbol</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.Clbit.html#qiskit.circuit.Clbit" title="(in Qiskit)"><span class="pre">Clbit</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.Clbit.html#qiskit.circuit.Clbit" title="(in Qiskit)"><span class="pre">Clbit</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#qiskit_qasm3_import.expression.resolve_condition" title="Permalink to this definition">¶</a></dt>
+<dd><p>A resolver for conditions that can be converted into Qiskit’s very basic equality form
+of either <code class="docutils literal notranslate"><span class="pre">Clbit</span> <span class="pre">==</span> <span class="pre">bool</span></code> or <code class="docutils literal notranslate"><span class="pre">ClassicalRegister</span> <span class="pre">==</span> <span class="pre">int</span></code>.</p>
+<p>This effectively just handles very special outer cases, then delegates the rest of the work to a
+<a class="reference internal" href="#qiskit_qasm3_import.expression.ValueResolver" title="qiskit_qasm3_import.expression.ValueResolver"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueResolver</span></code></a>.</p>
+</dd></dl>
+
+<span class="target" id="module-qiskit_qasm3_import.types"></span></section>
+<section id="type-system">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">Type system</a><a class="headerlink" href="#type-system" title="Permalink to this heading">¶</a></h3>
+<p>Internally we use a reduced and modified type system to represent the
+intermediate values we are working over.  Everything is a subclass of the
+abstract base class.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.types.Type">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_qasm3_import.types.</span></span><span class="sig-name descname"><span class="pre">Type</span></span><a class="headerlink" href="#qiskit_qasm3_import.types.Type" title="Permalink to this definition">¶</a></dt>
+<dd><p>An internal representation of the OpenQASM 3 type system values, or at least that parts of it
+that Terra has some sort of support for.  The reference AST does not have a nice unified object
+to use here; there is <code class="xref py py-class docutils literal notranslate"><span class="pre">ClassicalType</span></code> but no quantum equivalent (since
+it’s implicit).</p>
+<p>This class is just a typing base, and should never be instantiated.  Its subclasses will be,
+though.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.types.Type.pretty">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pretty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#qiskit_qasm3_import.types.Type.pretty" title="Permalink to this definition">¶</a></dt>
+<dd><p>A pretty string representation of the type, useful for debugging.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>There are several different types within this.  Some of these represent the
+types of real values that have corresponding Qiskit or just standard Python
+objects, and some are types used during inference or to represent errors.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.types.Bit">
+<em class="property"><span class="pre">final</span><span class="w"> </span><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_qasm3_import.types.</span></span><span class="sig-name descname"><span class="pre">Bit</span></span><a class="headerlink" href="#qiskit_qasm3_import.types.Bit" title="Permalink to this definition">¶</a></dt>
+<dd><p>A single bit.  This corresponds to Terra’s <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.Clbit.html#qiskit.circuit.Clbit" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Clbit</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.types.BitArray">
+<em class="property"><span class="pre">final</span><span class="w"> </span><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_qasm3_import.types.</span></span><span class="sig-name descname"><span class="pre">BitArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_qasm3_import.types.BitArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>An array of bits.  This roughly corresponds to Terra’s
+<a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.ClassicalRegister.html#qiskit.circuit.ClassicalRegister" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClassicalRegister</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.types.Qubit">
+<em class="property"><span class="pre">final</span><span class="w"> </span><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_qasm3_import.types.</span></span><span class="sig-name descname"><span class="pre">Qubit</span></span><a class="headerlink" href="#qiskit_qasm3_import.types.Qubit" title="Permalink to this definition">¶</a></dt>
+<dd><p>A single qubit.  This corresponds to Terra’s <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.Qubit.html#qiskit.circuit.Qubit" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Qubit</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.types.QubitArray">
+<em class="property"><span class="pre">final</span><span class="w"> </span><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_qasm3_import.types.</span></span><span class="sig-name descname"><span class="pre">QubitArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_qasm3_import.types.QubitArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>An array of qubits.  This roughly corresponds to Terra’s
+<a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumRegister.html#qiskit.circuit.QuantumRegister" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumRegister</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.types.Bool">
+<em class="property"><span class="pre">final</span><span class="w"> </span><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_qasm3_import.types.</span></span><span class="sig-name descname"><span class="pre">Bool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">const</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_qasm3_import.types.Bool" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Boolean value.  This is only used by Terra in for single-bit conditions.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.types.Int">
+<em class="property"><span class="pre">final</span><span class="w"> </span><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_qasm3_import.types.</span></span><span class="sig-name descname"><span class="pre">Int</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">const</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_qasm3_import.types.Int" title="Permalink to this definition">¶</a></dt>
+<dd><p>An integer value.  This is generally only encountered as a constant and so is represented by
+a Python integer, but can also be the type of the Qiskit <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.Parameter.html#qiskit.circuit.Parameter" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> used
+to represent <code class="docutils literal notranslate"><span class="pre">for</span></code>-loop variables.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.types.Uint">
+<em class="property"><span class="pre">final</span><span class="w"> </span><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_qasm3_import.types.</span></span><span class="sig-name descname"><span class="pre">Uint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">const</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_qasm3_import.types.Uint" title="Permalink to this definition">¶</a></dt>
+<dd><p>An unsigned integer value.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.types.Float">
+<em class="property"><span class="pre">final</span><span class="w"> </span><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_qasm3_import.types.</span></span><span class="sig-name descname"><span class="pre">Float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">const</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_qasm3_import.types.Float" title="Permalink to this definition">¶</a></dt>
+<dd><p>A floating-point type.  Terra can use this either in a constant form as a Python <code class="docutils literal notranslate"><span class="pre">float</span></code>,
+or as a <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.Parameter.html#qiskit.circuit.Parameter" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.types.Angle">
+<em class="property"><span class="pre">final</span><span class="w"> </span><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_qasm3_import.types.</span></span><span class="sig-name descname"><span class="pre">Angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">const</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_qasm3_import.types.Angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>An angle type.  OpenQASM 3 makes a large distinction between <code class="docutils literal notranslate"><span class="pre">angle</span></code> and <code class="docutils literal notranslate"><span class="pre">float</span></code> (the
+OpenQASM angle is integer-like), but Terra currently treats them as interchangeable.  This might
+change in the future.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.types.Duration">
+<em class="property"><span class="pre">final</span><span class="w"> </span><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_qasm3_import.types.</span></span><span class="sig-name descname"><span class="pre">Duration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">const</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_qasm3_import.types.Duration" title="Permalink to this definition">¶</a></dt>
+<dd><p>A duration.  Right now, this is only recognised in constant form, which is represented within
+<a class="reference internal" href="#qiskit_qasm3_import.expression.ValueResolver" title="qiskit_qasm3_import.expression.ValueResolver"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueResolver</span></code></a> as a 2-tuple of a float and its unit.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.types.Range">
+<em class="property"><span class="pre">final</span><span class="w"> </span><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_qasm3_import.types.</span></span><span class="sig-name descname"><span class="pre">Range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#qiskit_qasm3_import.types.Type" title="qiskit_qasm3_import.types.Type"><span class="pre">Type</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_qasm3_import.types.Range" title="Permalink to this definition">¶</a></dt>
+<dd><p>A range selector.  The inner type is the join of the types of the start and end values.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.types.Sequence">
+<em class="property"><span class="pre">final</span><span class="w"> </span><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_qasm3_import.types.</span></span><span class="sig-name descname"><span class="pre">Sequence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#qiskit_qasm3_import.types.Type" title="qiskit_qasm3_import.types.Type"><span class="pre">Type</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_qasm3_import.types.Sequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>A general sequence of values.  This is represented internally as a list or tuple of the
+contained type.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.types.Gate">
+<em class="property"><span class="pre">final</span><span class="w"> </span><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_qasm3_import.types.</span></span><span class="sig-name descname"><span class="pre">Gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_classical</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_quantum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_qasm3_import.types.Gate" title="Permalink to this definition">¶</a></dt>
+<dd><p>The type of a gate.  Since the classical parameters of gates have a fixed type in OpenQASM 3,
+this just stores the counts of the classical and quantum arguments.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.types.Error">
+<em class="property"><span class="pre">final</span><span class="w"> </span><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_qasm3_import.types.</span></span><span class="sig-name descname"><span class="pre">Error</span></span><a class="headerlink" href="#qiskit_qasm3_import.types.Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>A zero type that represents an error during type checking.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_qasm3_import.types.Never">
+<em class="property"><span class="pre">final</span><span class="w"> </span><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_qasm3_import.types.</span></span><span class="sig-name descname"><span class="pre">Never</span></span><a class="headerlink" href="#qiskit_qasm3_import.types.Never" title="Permalink to this definition">¶</a></dt>
+<dd><p>The bottom type.  There are no valid values of this type, as it can never be instantiated.
+This is used during inference in cases where multiple types must combined into their join, but
+some of the elements have missing values, such as a range that has a start but no stop value.</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">Qiskit OpenQASM 3 Importer</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Jake Lishman.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

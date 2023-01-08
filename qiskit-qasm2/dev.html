@@ -1,0 +1,205 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Development &#8212; Qiskit OpenQASM 2 Tools  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Parsing" href="parse.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="development">
+<h1>Development<a class="headerlink" href="#development" title="Permalink to this heading">¶</a></h1>
+<p>This page contains documentation on the development of the package, including the architecture and
+design decisions behind the package.</p>
+<section id="architecture">
+<h2>Architecture<a class="headerlink" href="#architecture" title="Permalink to this heading">¶</a></h2>
+<p>The parser is split into two components: a Rust core that implements all the lexing logic and the
+vast majority of the parsing logic; and a Python interpreter for a small “bytecode” domain-specific
+langauge the Rust component outputs.  The aim is that as little as possible should be done in Python
+space, because Python interpretation is slow.</p>
+<p>The Rust components produce a small Python interface using PyO3.  For the most part, the only API
+surface between the Rust and Python components is a small DSL, bound using PyO3.  Custom iterator
+objects are directly returned from Rust, which iterator over this DSL.  The Python components assume
+that the bytecode produces a completely valid program; Rust is responsible for raising exceptions
+because of an invalid OpenQASM 2 file, or a file that cannot be converted to Qiskit format for any
+reason.</p>
+<p>Both lexing and parsing are done in Rust by hand.  This is largely because I wanted to do this for
+my own experience—I do know about <a class="reference external" href="https://github.com/Geal/nom">nom</a>.  The lexer uses a simple
+<a class="reference external" href="https://en.wikipedia.org/wiki/LL_parser">LL(1)</a> tokenisation strategy for all symbols, numbers
+and comments, and only changes behaviour when lexing a text-like symbol.  Here, the entire
+identifier-like symbol is read in, and the lexer then decides whether to emit a relevant keyword
+token or arbitrary identifier token depeneding on the content.  Technically I suppose that means it
+has arbitrary lookahead at that point.</p>
+<p>The parser is principally a hand-written LL(1) <a class="reference external" href="https://en.wikipedia.org/wiki/Recursive_descent_parser">recursive-descent parser</a>.  The exception to this is
+in expression contexts; here, a short-lived (also LL(1)) <a class="reference external" href="https://en.wikipedia.org/wiki/Operator-precedence_parser">operator-precedence parser</a> is spawned using the same token stream
+to parse a single expression.</p>
+<p>Gate definitions are handled by storing the bytecode for that gate inside a Qiskit
+<a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.Gate.html#qiskit.circuit.Gate" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Gate</span></code></a> object, and having its <code class="xref py py-meth docutils literal notranslate"><span class="pre">_define()</span></code> method
+contain the very stripped-down version of the bytecode interpreter needed to evaluate this subset of
+the code.  This lets us build the gate objects lazily; when we place calls to these gates into the
+circuit, we don’t need to evaluate their definitions until the user actually calls for it to happen.
+Unfortunately the PyO3 types in the bytecode interpreter aren’t inherently pickleable, so to handle
+this, we have to eagerly create the definition and throw away the bytecode at that point.</p>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this heading">¶</a></h2>
+<p>The vast majority of the tests only use <a class="reference internal" href="parse.html#qiskit_qasm2.loads" title="qiskit_qasm2.loads"><code class="xref py py-func docutils literal notranslate"><span class="pre">loads()</span></code></a>.  This is mostly deliberate.  Rust has to be
+responsible for opening the files when using <a class="reference internal" href="parse.html#qiskit_qasm2.load" title="qiskit_qasm2.load"><code class="xref py py-func docutils literal notranslate"><span class="pre">load()</span></code></a>, so we can’t use any of Python’s
+in-memory file-like objects such as <code class="docutils literal notranslate"><span class="pre">io.TextIO</span></code>.  When we want to test <a class="reference internal" href="parse.html#qiskit_qasm2.load" title="qiskit_qasm2.load"><code class="xref py py-func docutils literal notranslate"><span class="pre">load()</span></code></a>, we have to
+have an actual file object.  We could parametrise by having every single test case in a separate
+file, and for the <a class="reference internal" href="parse.html#qiskit_qasm2.loads" title="qiskit_qasm2.loads"><code class="xref py py-func docutils literal notranslate"><span class="pre">loads()</span></code></a> test we read in the whole string first.  I don’t like this form,
+though, beacuse it makes the actual test hard to read; the OpenQASM code ends up in a different
+place to the Qiskit generating code, making it hard to quickly verify what is happening.</p>
+<p>Instead, I mostly use <a class="reference internal" href="parse.html#qiskit_qasm2.loads" title="qiskit_qasm2.loads"><code class="xref py py-func docutils literal notranslate"><span class="pre">loads()</span></code></a> as the test.  The implementation in Rust is generic over both,
+and both are immediately abstracted into a single <code class="docutils literal notranslate"><span class="pre">impl</span> <span class="pre">BufRead</span></code> in the lexer, so should have next
+to no differences.  The tests of the examples in <a class="reference external" href="https://arxiv.org/abs/1707.03429v2">the arXiv paper</a> are parametrised over both as a check, but all the rest only
+use <a class="reference internal" href="parse.html#qiskit_qasm2.loads" title="qiskit_qasm2.loads"><code class="xref py py-func docutils literal notranslate"><span class="pre">loads()</span></code></a> to make the tests more readable.</p>
+</section>
+<section id="coverage">
+<h2>Coverage<a class="headerlink" href="#coverage" title="Permalink to this heading">¶</a></h2>
+<p>Code coverage metrics for both the Python and Rust components can be generated with the tox
+environment <code class="docutils literal notranslate"><span class="pre">coverage</span></code>.  Additionally, after this run, one can also generate a set of HTML pages
+graphical illustrating the coverage by running the <code class="docutils literal notranslate"><span class="pre">coverage-html</span></code> environment, such as by</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>tox<span class="w"> </span>-e<span class="w"> </span>coverage,coverage-html
+</pre></div>
+</div>
+<p>These environments have some additional non-Python dependencies that must be installed separately.
+These are the <code class="docutils literal notranslate"><span class="pre">llvm-tools-preview</span></code> component for rustup, <a class="reference external" href="https://github.com/mozilla/grcov">Mozilla’s <code class="docutils literal notranslate"><span class="pre">grcov</span></code> tool for aggregating coverage data from instrumented Rust code</a>, and <a class="reference external" href="https://github.com/linux-test-project/lcov">the <code class="docutils literal notranslate"><span class="pre">lcov</span></code> package</a>.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">llvm-tools-preview</span></code> can be installed using <a class="reference external" href="https://rustup.rs/">rustup</a> by running</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rustup<span class="w"> </span>component<span class="w"> </span>add<span class="w"> </span>llvm-tools-preview
+</pre></div>
+</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grcov</span></code> is most easily installed by running</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cargo<span class="w"> </span>install<span class="w"> </span>grcov
+</pre></div>
+</div>
+</li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">lcov</span></code> package (which provides the binaries <code class="docutils literal notranslate"><span class="pre">lcov</span></code> and <code class="docutils literal notranslate"><span class="pre">genhtml</span></code>) is likely available
+through your system package manager, if on Linux or Mac.  For example, on Ubuntu it can be
+installed with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>lcov
+</pre></div>
+</div>
+<p>and on Mac via Homebrew it can be installed with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>brew<span class="w"> </span>install<span class="w"> </span>lcov
+</pre></div>
+</div>
+</li>
+</ul>
+<p>After the <code class="docutils literal notranslate"><span class="pre">coverage-html</span></code> environment has been successfully executed, one can open the generated
+HTML coverage information by opening the file <code class="docutils literal notranslate"><span class="pre">coverage/index.html</span></code>.  The raw coverage information
+file (in LCOV format) will be <code class="docutils literal notranslate"><span class="pre">coverage.info</span></code> in the repository root.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Running the <code class="docutils literal notranslate"><span class="pre">coverage</span></code> tox environment causes the compiled Rust code in the working directory
+for editable installs to be recompiled and instrumented for profiling data.  You might want to
+manually rebuild the Rust extension module with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>setup.py<span class="w"> </span>build_rust<span class="w"> </span>--inplace<span class="w"> </span><span class="o">[</span>--release<span class="o">]</span>
+</pre></div>
+</div>
+<p>after using the <code class="docutils literal notranslate"><span class="pre">coverage</span></code> job, or all your uses of the compiled module will continue generating
+individual coverage data.</p>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Qiskit OpenQASM 2 Tools</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="parse.html">Parsing</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#architecture">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#coverage">Coverage</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="parse.html" title="previous chapter">Parsing</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Jake Lishman.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 6.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/dev.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

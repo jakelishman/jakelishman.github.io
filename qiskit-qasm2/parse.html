@@ -193,6 +193,16 @@ its custom objects for them.  This can result in errors during the circuit const
 a successful parse.  There is no way to emulate this buggy behaviour in <a class="reference internal" href="index.html#module-qiskit_qasm2" title="qiskit_qasm2"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_qasm2</span></code></a>; only an
 <code class="docutils literal notranslate"><span class="pre">include</span> <span class="pre">&quot;qelib1.inc&quot;;</span></code> statement or the <cite>custom_instructions</cite> argument can cause built-in Qiskit
 instructions to be used, and the signatures of these match each other.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Circuits imported with <a class="reference internal" href="#qiskit_qasm2.load" title="qiskit_qasm2.load"><code class="xref py py-func docutils literal notranslate"><span class="pre">load()</span></code></a> and <a class="reference internal" href="#qiskit_qasm2.loads" title="qiskit_qasm2.loads"><code class="xref py py-func docutils literal notranslate"><span class="pre">loads()</span></code></a> with the above Qiskit-compability settings
+should compare equal to those created by Qiskit’s importers, provided no non-<code class="docutils literal notranslate"><span class="pre">qelib1.inc</span></code>
+user gates are defined.  User-defined gates are handled slightly differently between this package
+and Qiskit, and while they should have equivalent <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.Instruction.html#qiskit.circuit.Instruction.definition" title="(in Qiskit)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">definition</span></code></a> fields on inspection, this package uses a custom class
+to lazily load the definition when it is requested (like most Qiskit objects), rather than
+eagerly creating it during the parse.  Qiskit’s comparison rules for gates will see these two
+objects as unequal, although any pass through <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.compiler.transpile.html#qiskit.compiler.transpile" title="(in Qiskit)"><code class="xref py py-func docutils literal notranslate"><span class="pre">qiskit.transpile()</span></code></a> for a particular backend should produce the same output circuits.</p>
+</div>
 </section>
 </section>
 

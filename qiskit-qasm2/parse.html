@@ -12,6 +12,7 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/sphinx_highlight.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Development" href="dev.html" />
@@ -38,70 +39,71 @@
 <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html#qiskit.circuit.QuantumCircuit" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a> from an OpenQASM 2 program. <a class="reference internal" href="#qiskit_qasm2.load" title="qiskit_qasm2.load"><code class="xref py py-func docutils literal notranslate"><span class="pre">load()</span></code></a> takes a filename,
 while <a class="reference internal" href="#qiskit_qasm2.loads" title="qiskit_qasm2.loads"><code class="xref py py-func docutils literal notranslate"><span class="pre">loads()</span></code></a> takes the program itself as a string.  Their internals are very similar, so both
 offer the same API.</p>
-<p>Both functions can optionally take an <cite>include_path</cite> argument, which contains the directories that
-should be searched (in order) to find files specified by <code class="docutils literal notranslate"><span class="pre">include</span></code> statements in OpenQASM 2.  The
-include <code class="docutils literal notranslate"><span class="pre">qelib1.inc</span></code> is treated as a system include; this will always be found, regardless of the
-import settings. This helps ensure correct mapping to gates that Qiskit has builtin definitions for.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="qiskit_qasm2.load">
-<span class="sig-prename descclassname"><span class="pre">qiskit_qasm2.</span></span><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">('.',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_input_directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'append'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'prepend'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'append'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_qasm2.load" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">qiskit_qasm2.</span></span><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">('.',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_input_directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'append'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'prepend'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'append'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_instructions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#qiskit_qasm2.CustomInstruction" title="qiskit_qasm2.parse.CustomInstruction"><span class="pre">CustomInstruction</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_qasm2.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse an OpenQASM 2 program from a file into a <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html#qiskit.circuit.QuantumCircuit" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a>.  The
 given path should be ASCII or UTF-8 encoded, and contain the OpenQASM 2 program.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> (<em>str</em>) – A filename for a file that contains an OpenQASM 2 program.</p></li>
-<li><p><strong>include_path</strong> (<em>Iterable</em><em>[</em><em>Union</em><em>[</em><em>str</em><em>, </em><em>os.PathLike</em><em>]</em><em>]</em>) – <p>An iterable of directories to use when searching for include files.  These
-are tried in order, from index 0 onwards, and the first match is used.  The import
-<cite>qelib1.inc</cite> is treated as a system include, and will always be found regardless of the
-value of this argument.</p>
-<p>By default, this contains only the current working directory.</p>
-</p></li>
 <li><p><strong>include_file_directory</strong> (<code class="docutils literal notranslate"><span class="pre">None</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;append&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;prepend&quot;</span></code>.) – Whether to add the directory of the input file to the
 <cite>include_path</cite>, and if so, whether to <cite>append</cite> it to search last, or <cite>prepend</cite> it to search
 first.  Pass <cite>None</cite> to suppress adding this directory entirely.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#qiskit_qasm2.QASM2ParseError" title="qiskit_qasm2.QASM2ParseError"><strong>QASM2ParseError</strong></a> – If the OpenQASM 2 program is invalid, or otherwise cannot be converted
-to Qiskit format.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A circuit object representing the same OpenQASM 2 program.</p>
 </dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A circuit object representing the same OpenQASM 2 program.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html#qiskit.circuit.QuantumCircuit" title="(in Qiskit)"><em>QuantumCircuit</em></a></p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html#qiskit.circuit.QuantumCircuit" title="(in Qiskit)"><em>QuantumCircuit</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="qiskit_qasm2.loads">
-<span class="sig-prename descclassname"><span class="pre">qiskit_qasm2.</span></span><span class="sig-name descname"><span class="pre">loads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">('.',)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_qasm2.loads" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">qiskit_qasm2.</span></span><span class="sig-name descname"><span class="pre">loads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">('.',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_instructions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#qiskit_qasm2.CustomInstruction" title="qiskit_qasm2.parse.CustomInstruction"><span class="pre">CustomInstruction</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_qasm2.loads" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse an OpenQASM 2 program from a string into a <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html#qiskit.circuit.QuantumCircuit" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>string</strong> (<em>str</em>) – The OpenQASM 2 program in a string.</p></li>
-<li><p><strong>include_path</strong> (<em>Iterable</em><em>[</em><em>Union</em><em>[</em><em>str</em><em>, </em><em>os.PathLike</em><em>]</em><em>]</em>) – <p>An iterable of directories to use when searching for include files.  These
-are tried in order, from index 0 onwards, and the first match is used.  The import
-<cite>qelib1.inc</cite> is treated as a system include, and will always be found regardless of the
-value of this argument.</p>
-<p>By default, this contains only the current working directory.</p>
-</p></li>
-</ul>
+<dd class="field-odd"><p><strong>string</strong> (<em>str</em>) – The OpenQASM 2 program in a string.</p>
 </dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#qiskit_qasm2.QASM2ParseError" title="qiskit_qasm2.QASM2ParseError"><strong>QASM2ParseError</strong></a> – If the OpenQASM 2 program is invalid, or otherwise cannot be converted
-to Qiskit format.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A circuit object representing the same OpenQASM 2 program.</p>
 </dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A circuit object representing the same OpenQASM 2 program.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html#qiskit.circuit.QuantumCircuit" title="(in Qiskit)"><em>QuantumCircuit</em></a></p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.html#qiskit.circuit.QuantumCircuit" title="(in Qiskit)"><em>QuantumCircuit</em></a></p>
 </dd>
 </dl>
+</dd></dl>
+
+<p>Both of these loading functions also take an argument <cite>include_path</cite>, which is an iterable of
+directory names to use when searching for files in <code class="docutils literal notranslate"><span class="pre">include</span></code> statements.  The directories are
+tried from index 0 onwards, and the first match is used.  The import <code class="docutils literal notranslate"><span class="pre">qelib1.inc</span></code> is treated
+specially; it is always found before looking in the include path, and contains exactly the content
+of the <a class="reference external" href="https://arxiv.org/abs/1707.03429">paper describing the OpenQASM 2 language</a>.  The gates
+in this include file are mapped to standard gates provided by Qiskit.</p>
+<p>You can extend the OpenQASM 2 language by passing an iterable of information on custom instructions
+as the argument <cite>custom_instructions</cite>.  In files that have compatible definitions for these
+instructions, the given <cite>constructor</cite> will be used in place of whatever other handling
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_qasm</span></code> would have done.  These instructions may optionally be marked as <cite>builtin</cite>, which
+causes them to not require an <code class="docutils literal notranslate"><span class="pre">opaque</span></code> or <code class="docutils literal notranslate"><span class="pre">gate</span></code> declaration, but they will silently ignore a
+compatible declaration.  Either way, it is an error to provide a custom instruction that has a
+different number of parameters or qubits as a defined instruction in a parsed program.  Each element
+of the argument iterable should be a particular data class:</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_qasm2.CustomInstruction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_qasm2.</span></span><span class="sig-name descname"><span class="pre">CustomInstruction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_qubits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constructor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Unpack</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.Instruction.html#qiskit.circuit.Instruction" title="(in Qiskit)"><span class="pre">Instruction</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">builtin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_qasm2.CustomInstruction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Information about a custom instruction that should be defined during the parse.</p>
+<p>The <cite>name</cite>, <cite>n_params</cite> and <cite>n_qubits</cite> fields are self-explanatory.  The <cite>constructor</cite> field
+should be a callable object with signature <code class="docutils literal notranslate"><span class="pre">*args</span> <span class="pre">-&gt;</span> <span class="pre">Instruction</span></code>, where each of the
+<cite>n_params</cite> <cite>args</cite> is a floating-point value.  Most of the built-in Qiskit gate classes have this
+form.</p>
+<p>There is a final <cite>builtin</cite> field.  This is optional, and if set true will cause the instruction
+to be defined and available within the parsing, even if there is no definition in any included
+OpenQASM 2 file.</p>
 </dd></dl>
 
 <p>In cases where the lexer or parser fails due to an invalid OpenQASM 2 file, the conversion functions
@@ -113,6 +115,85 @@ occurred.</p>
 <dd><p>An error raised during parsing of OpenQASM 2 programs.</p>
 </dd></dl>
 
+<section id="qiskit-compatibility">
+<span id="id1"></span><h2>Qiskit Compatibility<a class="headerlink" href="#qiskit-compatibility" title="Permalink to this heading">¶</a></h2>
+<p>Qiskit’s <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.from_qasm_str.html#qiskit.circuit.QuantumCircuit.from_qasm_str" title="(in Qiskit)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">QuantumCircuit.from_qasm_str()</span></code></a> and
+<a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.from_qasm_file.html#qiskit.circuit.QuantumCircuit.from_qasm_file" title="(in Qiskit)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_qasm_file()</span></code></a> have a few additions on top of the raw
+specification, as Qiskit originally tried to use OpenQASM 2 as a sort of serialisation format, and
+expanded their behaviour as Qiskit expanded.  This parser under all its defaults implements the
+specification more strictly.</p>
+<p>In particular, in the Qiskit importers:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>the <cite>include_path</cite> is:</dt><dd><ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;qiskit&gt;/qasm/lib</span></code>, where <code class="docutils literal notranslate"><span class="pre">&lt;qiskit&gt;</span></code> is the root of the installed <code class="docutils literal notranslate"><span class="pre">qiskit</span></code> package;</p></li>
+<li><p>the current working directory.</p></li>
+</ol>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>there are additional instructions defined in <code class="docutils literal notranslate"><span class="pre">qelib1.inc</span></code>:</dt><dd><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">csx</span> <span class="pre">a,</span> <span class="pre">b</span></code></dt><dd><p>Controlled <span class="math notranslate nohighlight">\(\sqrt X\)</span> gate, corresponding to <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.library.CSXGate.html#qiskit.circuit.library.CSXGate" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CSXGate</span></code></a>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">cu(theta,</span> <span class="pre">phi,</span> <span class="pre">lambda,</span> <span class="pre">gamma)</span> <span class="pre">c,</span> <span class="pre">t</span></code></dt><dd><p>The four-parameter version of a controlled-<span class="math notranslate nohighlight">\(U\)</span>, corresponding to
+<a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.library.CUGate.html#qiskit.circuit.library.CUGate" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUGate</span></code></a>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">rxx(theta)</span> <span class="pre">a,</span> <span class="pre">b</span></code></dt><dd><p>Two-qubit rotation arond the <span class="math notranslate nohighlight">\(XX\)</span> axis, corresponding to
+<a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.library.RXXGate.html#qiskit.circuit.library.RXXGate" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RXXGate</span></code></a>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">rzz(theta)</span> <span class="pre">a,</span> <span class="pre">b</span></code></dt><dd><p>Two-qubit rotation arond the <span class="math notranslate nohighlight">\(ZZ\)</span> axis, corresponding to
+<a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.library.RZZGate.html#qiskit.circuit.library.RZZGate" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RZZGate</span></code></a>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">rccx</span> <span class="pre">a,</span> <span class="pre">b,</span> <span class="pre">c</span></code></dt><dd><p>The double-controlled <span class="math notranslate nohighlight">\(X\)</span> gate, but with relative phase differences over the standard
+Toffoli gate.  This <em>should</em> correspond to the Qiskit gate
+<a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.library.RCCXGate.html#qiskit.circuit.library.RCCXGate" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RCCXGate</span></code></a>, but the Qiskit converter won’t actually output this
+type.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">rc3x</span> <span class="pre">a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d</span></code></dt><dd><p>The triple-controlled <span class="math notranslate nohighlight">\(X\)</span> gate, but with relative phase differences over the standard
+definition.  <em>Should</em> correspond to <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.library.RC3XGate.html#qiskit.circuit.library.RC3XGate" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RC3XGate</span></code></a>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">c3x</span> <span class="pre">a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d</span></code></dt><dd><p>The triple-controlled <span class="math notranslate nohighlight">\(X\)</span> gate, corresponding to <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.library.C3XGate.html#qiskit.circuit.library.C3XGate" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">C3XGate</span></code></a>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">c3sqrtx</span> <span class="pre">a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d</span></code></dt><dd><p>The triple-controlled <span class="math notranslate nohighlight">\(\sqrt X\)</span> gate.  <em>Should</em> correspond to
+<a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.library.C3SXGate.html#qiskit.circuit.library.C3SXGate" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">C3SXGate</span></code></a>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">c4x</span> <span class="pre">a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d,</span> <span class="pre">e</span></code></dt><dd><p>The quadruple-controlled <span class="math notranslate nohighlight">\(X\)</span> gate.  <em>Should</em> correspond to
+<a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.library.C4XGate.html#qiskit.circuit.library.C4XGate" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">C4XGate</span></code></a>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</li>
+<li><p>if <em>any</em> <code class="docutils literal notranslate"><span class="pre">opaque</span></code> or <code class="docutils literal notranslate"><span class="pre">gate</span></code> definition is given for the name <code class="docutils literal notranslate"><span class="pre">delay</span></code>, they will attempt to
+output a <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.Delay.html#qiskit.circuit.Delay" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Delay</span></code></a> instruction at each call.  To function, this expects a
+definition compatible with <code class="docutils literal notranslate"><span class="pre">opaque</span> <span class="pre">delay(t)</span> <span class="pre">q;</span></code>, where the time <code class="docutils literal notranslate"><span class="pre">t</span></code> is given in units of
+<code class="docutils literal notranslate"><span class="pre">dt</span></code>.  The importer will raise an error on calls to the instruction if there are actually not
+exactly one parameter and one qubit, or if the parameter is not integer-valued.</p></li>
+</ul>
+<p>You can emulate this behaviour in <a class="reference internal" href="#qiskit_qasm2.load" title="qiskit_qasm2.load"><code class="xref py py-func docutils literal notranslate"><span class="pre">load()</span></code></a> and <a class="reference internal" href="#qiskit_qasm2.loads" title="qiskit_qasm2.loads"><code class="xref py py-func docutils literal notranslate"><span class="pre">loads()</span></code></a> by setting <cite>include_path</cite>
+appropriately (try inspecting the variable <code class="docutils literal notranslate"><span class="pre">qiskit.__file__</span></code> to find the installed location), and
+by passing a list of <a class="reference internal" href="#qiskit_qasm2.CustomInstruction" title="qiskit_qasm2.CustomInstruction"><code class="xref py py-class docutils literal notranslate"><span class="pre">CustomInstruction</span></code></a> instances for each of the custom gates you care
+about.  To make things easier, we make a tuple available containing all the above instructions
+(using the correspondences that Qiskit forgets as well) that you can supply to
+<cite>custom_instructions</cite>.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="qiskit_qasm2.QISKIT_CUSTOM_INSTRUCTIONS">
+<span class="sig-prename descclassname"><span class="pre">qiskit_qasm2.</span></span><span class="sig-name descname"><span class="pre">QISKIT_CUSTOM_INSTRUCTIONS</span></span><a class="headerlink" href="#qiskit_qasm2.QISKIT_CUSTOM_INSTRUCTIONS" title="Permalink to this definition">¶</a></dt>
+<dd><p>A tuple containing the extra <cite>custom_instructions</cite> that Qiskit’s built-in converters use if
+<code class="docutils literal notranslate"><span class="pre">qelib1.inc</span></code> is included, and there is any definition of a <code class="docutils literal notranslate"><span class="pre">delay</span></code> instruction.  The gates
+in the paper version of <code class="docutils literal notranslate"><span class="pre">qelib1.inc</span></code> and <code class="docutils literal notranslate"><span class="pre">delay</span></code> all require a compatible declaration
+statement to be present within the OpenQASM 2 program, but Qiskit’s additions are all marked as
+builtins since they are not actually present in any include file this parser sees.</p>
+</dd></dl>
+
+<p>On <em>all</em> the gates defined in Qiskit’s version of <code class="docutils literal notranslate"><span class="pre">qelib1.inc</span></code> and the <code class="docutils literal notranslate"><span class="pre">delay</span></code> instruction, it
+does not matter how the gates are actually defined and used, Qiskit will always attempt to output
+its custom objects for them.  This can result in errors during the circuit construction, even after
+a successful parse.  There is no way to emulate this buggy behaviour in <a class="reference internal" href="index.html#module-qiskit_qasm2" title="qiskit_qasm2"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_qasm2</span></code></a>; only an
+<code class="docutils literal notranslate"><span class="pre">include</span> <span class="pre">&quot;qelib1.inc&quot;;</span></code> statement or the <cite>custom_instructions</cite> argument can cause built-in Qiskit
+instructions to be used, and the signatures of these match each other.</p>
+</section>
 </section>
 
 
@@ -136,7 +217,12 @@ occurred.</p>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Parsing</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#qiskit_qasm2.load"><code class="docutils literal notranslate"><span class="pre">load()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#qiskit_qasm2.loads"><code class="docutils literal notranslate"><span class="pre">loads()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qiskit_qasm2.CustomInstruction"><code class="docutils literal notranslate"><span class="pre">CustomInstruction</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#qiskit_qasm2.QASM2ParseError"><code class="docutils literal notranslate"><span class="pre">QASM2ParseError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#qiskit-compatibility">Qiskit Compatibility</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#qiskit_qasm2.QISKIT_CUSTOM_INSTRUCTIONS"><code class="docutils literal notranslate"><span class="pre">QISKIT_CUSTOM_INSTRUCTIONS</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="dev.html">Development</a></li>
@@ -179,7 +265,7 @@ occurred.</p>
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 6.1.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |
       <a href="_sources/parse.rst.txt"

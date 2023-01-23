@@ -123,7 +123,7 @@ specification, as Qiskit originally tried to use OpenQASM 2 as a sort of seriali
 expanded their behaviour as Qiskit expanded.  This parser under all its defaults implements the
 specification more strictly.</p>
 <p>In particular, in the Qiskit importers:</p>
-<ul>
+<ul class="simple">
 <li><dl class="simple">
 <dt>the <cite>include_path</cite> is:</dt><dd><ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">&lt;qiskit&gt;/qasm/lib</span></code>, where <code class="docutils literal notranslate"><span class="pre">&lt;qiskit&gt;</span></code> is the root of the installed <code class="docutils literal notranslate"><span class="pre">qiskit</span></code> package;</p></li>
@@ -132,17 +132,13 @@ specification more strictly.</p>
 </dd>
 </dl>
 </li>
-<li><dl>
-<dt>there are additional instructions defined in <code class="docutils literal notranslate"><span class="pre">qelib1.inc</span></code>:</dt><dd><blockquote>
-<div><dl class="simple">
+<li><dl class="simple">
+<dt>there are additional instructions defined in <code class="docutils literal notranslate"><span class="pre">qelib1.inc</span></code>:</dt><dd><dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">u0(gamma)</span> <span class="pre">a</span></code></dt><dd><p>This is ambiguous.  Its provided definition suggests it is a no-op and that the <cite>gamma</cite>
 parameter is ignored, but a comment above it describes it as a delay for <cite>gamma</cite> times the
 length of the shortest single-qubit gate.  In compatibility mode, we require <cite>gamma</cite> to be an
 integer, and set its definition to that many Qiskit <code class="xref py py-class docutils literal notranslate"><span class="pre">IGate</span></code>s.</p>
 </dd>
-</dl>
-</div></blockquote>
-<dl>
 <dt><code class="docutils literal notranslate"><span class="pre">u(theta,</span> <span class="pre">phi,</span> <span class="pre">lambda)</span> <span class="pre">a</span></code></dt><dd><p>A synonym for the OpenQASM 2 builtin gate <code class="docutils literal notranslate"><span class="pre">U</span></code>.  Corresponds to
 <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.library.UGate.html#qiskit.circuit.library.UGate" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UGate</span></code></a>.</p>
 </dd>
@@ -163,11 +159,9 @@ which is a synonym of <a class="reference external" href="https://qiskit.org/doc
 <dt><code class="docutils literal notranslate"><span class="pre">cry(theta)</span> <span class="pre">a,</span> <span class="pre">b</span></code></dt><dd><p>Controlled rotation around the <span class="math notranslate nohighlight">\(Y\)</span> axis. Corresponds to
 <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.library.CRYGate.html#qiskit.circuit.library.CRYGate" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CRYGate</span></code></a>.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">cp(lambda)</span> <span class="pre">a,</span> <span class="pre">b</span></code></dt><dd><blockquote>
-<div><p>Controlled phase gate, which is a synonym for the paper gate <code class="docutils literal notranslate"><span class="pre">cu1</span></code>. Corresponds to
+<dt><code class="docutils literal notranslate"><span class="pre">cp(lambda)</span> <span class="pre">a,</span> <span class="pre">b</span></code></dt><dd><p>Controlled phase gate, which is a synonym for the paper gate <code class="docutils literal notranslate"><span class="pre">cu1</span></code>. Corresponds to
 <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.library.CPhaseGate.html#qiskit.circuit.library.CPhaseGate" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CPhaseGate</span></code></a>.</p>
-</div></blockquote>
-<dl class="simple">
+</dd>
 <dt><code class="docutils literal notranslate"><span class="pre">csx</span> <span class="pre">a,</span> <span class="pre">b</span></code></dt><dd><p>Controlled <span class="math notranslate nohighlight">\(\sqrt X\)</span> gate, corresponding to <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.library.CSXGate.html#qiskit.circuit.library.CSXGate" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CSXGate</span></code></a>.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">cu(theta,</span> <span class="pre">phi,</span> <span class="pre">lambda,</span> <span class="pre">gamma)</span> <span class="pre">c,</span> <span class="pre">t</span></code></dt><dd><p>The four-parameter version of a controlled-<span class="math notranslate nohighlight">\(U\)</span>, corresponding to
@@ -194,8 +188,6 @@ definition.  <em>Should</em> correspond to <a class="reference external" href="h
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">c4x</span> <span class="pre">a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d,</span> <span class="pre">e</span></code></dt><dd><p>The quadruple-controlled <span class="math notranslate nohighlight">\(X\)</span> gate.  <em>Should</em> correspond to
 <a class="reference external" href="https://qiskit.org/documentation/stubs/qiskit.circuit.library.C4XGate.html#qiskit.circuit.library.C4XGate" title="(in Qiskit)"><code class="xref py py-class docutils literal notranslate"><span class="pre">C4XGate</span></code></a>.</p>
-</dd>
-</dl>
 </dd>
 </dl>
 </dd>
